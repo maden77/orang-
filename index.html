@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D CSS3 Person - Android Version</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --skin: #ffdbac;
+            --shirt: #3b82f6;
+            --pants: #374151;
+            --shoes: #111827;
+        }
+
+        body {
+            background-color: #0f172a;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            touch-action: none; /* Mencegah scroll saat memutar karakter */
+        }
+
+        .container-3d {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+        }
+
+        .scene {
+            width: 200px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-10deg) rotateY(0deg);
+            transition: transform 0.1s ease-out;
+        }
+
+        .auto-rotate {
+            animation: rotateScene 15s linear infinite;
+        }
+
+        @keyframes rotateScene {
+            from { transform: rotateX(-10deg) rotateY(0deg); }
+            to { transform: rotateX(-10deg) rotateY(360deg); }
+        }
+
+        /* Helper untuk membuat kotak 3D */
+        .box {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
+        .face {
+            position: absolute;
+            background-color: var(--color);
+            border: 1px solid rgba(0,0,0,0.1);
+            backface-visibility: visible;
+        }
+
+        /* Detail Wajah */
+        .eyes {
+            position: absolute;
+            top: 12px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 6px;
+        }
+        .eye {
+            width: 6px;
+            height: 6px;
+            background: #333;
+            border-radius: 50%;
+            animation: blink 4s infinite;
+        }
+        .mouth {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 4px;
+            background: #cc6666;
+            border-radius: 2px;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        /* Bagian Tubuh */
+        .head { width: 40px; height: 40px; left: 80px; top: 20px; --color: var(--skin); }
+        .torso { width: 60px; height: 90px; left: 70px; top: 65px; --color: var(--shirt); }
+        .arm-r { width: 20px; height: 80px; left: 45px; top: 65px; --color: var(--skin); }
+        .arm-l { width: 20px; height: 80px; left: 135px; top: 65px; --color: var(--skin); }
+        .leg-r { width: 25px; height: 100px; left: 72px; top: 160px; --color: var(--pants); }
+        .leg-l { width: 25px; height: 100px; left: 103px; top: 160px; --color: var(--pants); }
+
+        /* Logika Sisi Kotak */
+        .f-front  { transform: translateZ(var(--depth)); width: 100%; height: 100%; }
+        .f-back   { transform: rotateY(180deg) translateZ(var(--depth)); width: 100%; height: 100%; }
+        .f-right  { transform: rotateY(90deg) translateZ(var(--width)); width: calc(var(--depth) * 2); height: 100%; left: calc(50% - var(--depth)); }
+        .f-left   { transform: rotateY(-90deg) translateZ(var(--width)); width: calc(var(--depth) * 2); height: 100%; left: calc(50% - var(--depth)); }
+        .f-top    { transform: rotateX(90deg) translateZ(var(--depth)); width: 100%; height: calc(var(--depth) * 2); top: calc(50% - var(--depth)); }
+        .f-bottom { transform: rotateX(-90deg) translateZ(calc(var(--height) - var(--depth))); width: 100%; height: calc(var(--depth) * 2); top: calc(50% - var(--depth)); }
+
+        .controls-hint {
+            position: fixed;
+            bottom: 30px;
+            color: white;
+            text-align: center;
+            font-family: sans-serif;
+            background: rgba(0,0,0,0.6);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            pointer-events: none;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-3d" id="container">
+        <div class="scene auto-rotate" id="person">
+            <!-- Kepala -->
+            <div class="box head" style="--width: 20px; --height: 40px; --depth: 20px;">
+                <div class="face f-front">
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="mouth"></div>
+                </div>
+                <div class="face f-back"></div>
+                <div class="face f-right"></div>
+                <div class="face f-left"></div>
+                <div class="face f-top"></div>
+                <div class="face f-bottom"></div>
+            </div>
+
+            <!-- Badan -->
+            <div class="box torso" style="--width: 30px; --height: 90px; --depth: 20px;">
+                <div class="face f-front"></div>
+                <div class="face f-back"></div>
+                <div class="face f-right"></div>
+                <div class="face f-left"></div>
+                <div class="face f-top"></div>
+                <div class="face f-bottom"></div>
+            </div>
+
+            <!-- Lengan -->
+            <div class="box arm-l" style="--width: 10px; --height: 80px; --depth: 10px;"><div class="face f-front"></div><div class="face f-back"></div><div class="face f-right"></div><div class="face f-left"></div><div class="face f-top"></div><div class="face f-bottom"></div></div>
+            <div class="box arm-r" style="--width: 10px; --height: 80px; --depth: 10px;"><div class="face f-front"></div><div class="face f-back"></div><div class="face f-right"></div><div class="face f-left"></div><div class="face f-top"></div><div class="face f-bottom"></div></div>
+
+            <!-- Kaki -->
+            <div class="box leg-l" style="--width: 12.5px; --height: 100px; --depth: 12px;"><div class="face f-front"></div><div class="face f-back"></div><div class="face f-right"></div><div class="face f-left"></div><div class="face f-top"></div><div class="face f-bottom"></div></div>
+            <div class="box leg-r" style="--width: 12.5px; --height: 100px; --depth: 12px;"><div class="face f-front"></div><div class="face f-back"></div><div class="face f-right"></div><div class="face f-left"></div><div class="face f-top"></div><div class="face f-bottom"></div></div>
+        </div>
+    </div>
+
+    <div class="controls-hint">
+        Geser layar untuk memutar karakter<br>
+        Ketuk dua kali untuk putar otomatis
+    </div>
+
+    <script>
+        const person = document.getElementById('person');
+        const container = document.getElementById('container');
+        
+        let isDragging = false;
+        let startX, startY;
+        let rotationY = 0;
+        let rotationX = -10;
+
+        // Kontrol Sentuh (Android)
+        container.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            person.classList.remove('auto-rotate');
+            startX = e.touches[0].pageX;
+            startY = e.touches[0].pageY;
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const deltaX = e.touches[0].pageX - startX;
+            const deltaY = e.touches[0].pageY - startY;
+            
+            rotationY += deltaX * 0.5;
+            rotationX -= deltaY * 0.5;
+            
+            // Batasi rotasi X agar tidak terbalik
+            rotationX = Math.max(-45, Math.min(45, rotationX));
+            
+            person.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+            
+            startX = e.touches[0].pageX;
+            startY = e.touches[0].pageY;
+        });
+
+        container.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // Double tap untuk mengaktifkan kembali rotasi otomatis
+        let lastTap = 0;
+        container.addEventListener('touchstart', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 500 && tapLength > 0) {
+                person.classList.add('auto-rotate');
+                rotationX = -10;
+                rotationY = 0;
+            }
+            lastTap = currentTime;
+        });
+    </script>
+</body>
+</html>
+
